@@ -30,7 +30,9 @@ rownames(site.num) <- colnames(site)
 site <- site.num
 
 #pick 50 random samples
-site.rand <- site[,as.integer(sample(seq(1,length(colnames(site)),1),50,replace=FALSE))]
+randomSampleIndex <- as.integer(sample(seq(1,length(colnames(site)),1),50,replace=FALSE))
+site.rand <- site[,randomSampleIndex]
+metadata <- id[match(colnames(data),rownames(id)),]
 
 # remove all 0 count OTUs
 data.sum <- apply(site.rand, 1, sum)
@@ -41,12 +43,22 @@ write.table(data,file="50_random_hmp_gut_samples_otu.txt",quote=FALSE,sep="\t")
 #read with
 # read.table("50_random_hmp_gut_samples_otu.txt", header=TRUE, sep="\t", row.names=1)
 
-################# CLR VS PROPORTION TEST ##################
+fakeEffectSummary <- list()
+summaryIndex <- 1
 
-#get clr data
+################# CLR VS PROPORTION TEST ##################
 
 #get proportional data
 data.prop <- apply(data, 2, function(x){x/sum(x)})
+
+#get clr data
+data.clr <- apply(data.prop,2,function(x){log2(x) - mean(log2(x))})
+
+fakeEffectSummary[[summaryIndex]] <- checkMetaData(data.prop,metadata,"Proportional")
+summaryIndex <- summaryIndex+1
+
+fakeEffectSummary[[summaryIndex]] <- checkMetaData(data.prop.metadata,"Compositional")
+summaryIndex <- summaryIndex+1
 
 ################# SPARSITY TEST ##################
 
