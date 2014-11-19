@@ -94,6 +94,10 @@ rarefy <- function(otu,minReadCount,withReplacement)
 	rownames(bootstrap) <- rownames(otu)
 	colnames(bootstrap) <- sampleNames[indices]
 
+	#remove all OTUs with zero counts
+	bootstrap.sum <- apply(bootstrap,1,sum)
+	bootstrap <- bootstrap[which(bootstrap.sum>0),]
+
 	return(bootstrap)
 }
 
@@ -101,8 +105,6 @@ rarefy <- function(otu,minReadCount,withReplacement)
 dirichlet <- function(otu) {
 	return(apply(otu, 2, function(x){rdirichlet(1,x)}))
 }
-
-
 
 ####################### INTITIALIZATION SCRIPT #########################
 
@@ -173,7 +175,7 @@ mainDir <- getwd()
 dir.create(file.path(mainDir, "Sequencing_Depth_Adjustments"))
 
 #bootstrap rarification
-data.bs <-
+data.bs <- bootstrap2000(data)
 #try proportional and CLR
 data.bs.prop <- prop(data.bs)
 data.bs.clr <- clr(data.bs)
@@ -185,7 +187,7 @@ summaryIndex <- summaryIndex+1
 summaryIndex <- summaryIndex+1
 
 #jackknife rarification
-data.jk <-
+data.jk <- jackknife(data)
 #try proportional and CLR
 data.jk.prop <- prop(data.jk)
 data.jk.clr <- clr(data.jk)
