@@ -49,10 +49,21 @@ clr <- function(otu) {
 	return(apply(otu.prop,2,function(x){log2(x) - mean(log2(x))}))
 }
 
-#input OTU table must have OTU names as row names, these must be distinct
-#  samples with less than 2000 reads are discarded,
-#  and everything else is bootstrapped to 2000
+
 bootstrap2000 <- function(otu) {
+	return(rarefy(otu,2000,TRUE))
+}
+
+jackknife2000 <- function(otu) {
+	return(rarefy(otu,2000,FALSE))
+}
+
+#input OTU table must have OTU names as row names, these must be distinct
+#  samples with less than minReadCount reads are discarded,
+#  and everything else is bootstrapped/jackknifed to 2000
+#  (depending on the withReplacement boolean value)
+rarefy <- function(otu,minReadCount,withReplacement)
+
 	#check if OTU names are distinct
 	if (length(unique(rownames(otu)))!=length(rownames(otu))) {
 		warning("OTU names aren't distinct")
@@ -65,15 +76,12 @@ bootstrap2000 <- function(otu) {
 	sampleFrom <- list()
 	sampleFrom <- lapply(c(1:50),function(x) rep(rownames(data),data[,x]))
 
-	#bootstrap to 2000 reads
-	minReadCount <- 2000
-
 	#remove reads with less than 2000 counts
 	indices <- which(lapply(sampleFrom,function(x) {length(x)})>=2000)
 	samples <- sampleFrom[indices]
 
 	#perform bootstrap sampling with replacement
-	samples.otu <- lapply(samples,function(x) { sample(x,minReadCount,replace=TRUE) } )
+	samples.otu <- lapply(samples,function(x) { sample(x,minReadCount,replace=withReplacement) } )
 
 	#count number of each OTU sampled
 	samples.count <- lapply(samples.otu,function(x) {count(x)} )
@@ -85,6 +93,8 @@ bootstrap2000 <- function(otu) {
 	#preserve sample names (so that meta data can be matched) and OTU names
 	rownames(bootstrap) <- rownames(otu)
 	colnames(bootstrap) <- sampleNames[indices]
+
+	return(bootstrap)
 }
 
 #gets median of dirichlet distribution for each otu count per sample
