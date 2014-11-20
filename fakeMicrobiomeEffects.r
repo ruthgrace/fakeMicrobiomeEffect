@@ -68,7 +68,7 @@ jackknife2000 <- function(otu) {
 #  samples with less than minReadCount reads are discarded,
 #  and everything else is bootstrapped/jackknifed to 2000
 #  (depending on the withReplacement boolean value)
-rarefy <- function(otu,minReadCount,withReplacement)
+rarefy <- function(otu,minReadCount,withReplacement) {
 
 	#check if OTU names are distinct
 	if (length(unique(rownames(otu)))!=length(rownames(otu))) {
@@ -114,46 +114,78 @@ dirichlet <- function(otu) {
 
 ####################### INTITIALIZATION SCRIPT #########################
 
+source("metaDataChecker.r")
+
 #read metadata
-id <- read.table("../fodor/v35_map_uniquebyPSN.txt", header=TRUE, sep="\t", row.names=1)
+id <- read.table("50_random_hmp_gut_samples_metadata.txt", header=TRUE, sep="\t", row.names=1)
+#read count data
+data <- t(read.table("50_random_hmp_gut_samples_otu.txt", header=TRUE, sep="\t", row.names=1,check.names=FALSE))
 
-#read OTU count data
-otu <- t( read.table("../fodor/otu_table_psn_v35.txt", header=T, sep="\t", row.names=1, check.names=FALSE) )
 
-#### MAKE SURE YOU HAVE APPROPRIATE SUBTREE OR ELSE GUNIFRAC WILL TAKE A MILLION YEARS DROPPING THE TIPS
+#### select 50 samples from full data set
+
+# #read OTU count data
+# otu <- t( read.table("../fodor/otu_table_psn_v35.txt", header=T, sep="\t", row.names=1, check.names=FALSE) )
+
+# #read metadata
+# id <- read.table("../fodor/v35_map_uniquebyPSN.txt", header=TRUE, sep="\t", row.names=1)
+
+# #examine gut samples only
+# body_site <- "Stool"
+# site.id <- rownames(id)[which(id$HMPbodysubsite==body_site)]
+
+# #put the samples in columns, and the OTUs in rows
+# site <- otu[rownames(otu) %in% site.id,]
+
+# # turn matrix to numeric, transpose so that colnames are sample names, rownames are OTUs
+# site.num <- apply(site, 1, function(x){as.numeric(x)})
+# rownames(site.num) <- colnames(site)
+# site <- site.num
+
+# #pick 50 random samples
+# randomSampleIndex <- as.integer(sample(seq(1,length(colnames(site)),1),50,replace=FALSE))
+# site.rand <- site[,randomSampleIndex]
+# metadata <- id[match(colnames(site.rand),rownames(id)),]
+
+# # remove all 0 count OTUs
+# data.sum <- apply(site.rand, 1, sum)
+# data <- site.rand[data.sum > 0,]
+
+# #sort from least to most abundant
+# data.sum <- apply(data, 1, sum)
+# data <- data[order(data.sum),]
+
+# # get rid of extra OTUs in tree
+# absent <- tree$tip.label[!(tree$tip.label %in% rownames(data))]
+# if (length(absent) != 0) {
+# 		tree <- drop.tip(tree, absent)
+# }
+# write.tree(tree,file="rep_set_v35_subtree.tre")
+
+# #read metadata
+# id <- read.table("../fodor/v35_map_uniquebyPSN.txt", header=TRUE, sep="\t", row.names=1)
+# id <- id[match(colnames(data),rownames(id)),]
+# write.table(id,file="50_random_hmp_gut_samples_metadata.txt",quote=FALSE,sep="\t")
+
+# #save sampled data set
+# write.table(data,file="50_random_hmp_gut_samples_otu.txt",quote=FALSE,sep="\t")
+# #read with
+# # read.table("50_random_hmp_gut_samples_otu.txt", header=TRUE, sep="\t", row.names=1)
+
+####
+
+#get rid of extra OTUs in tree
+# absent <- mouth.tree$tip.label[!(mouth.tree$tip.label %in% colnames(mouth.otu))]
+# if (length(absent) != 0) {
+# 		mouth.tree <- drop.tip(mouth.tree, absent)
+# 		write.tree(mouth.tree,file="rep_set_v35_subtree.tre")
+# }
+
+
+
 
 #intiialize metaDataChecker tree
 metaDataChecker.init("rep_set_v35_subtree.tre")
-
-#examine gut samples only
-body_site <- "Stool"
-site.id <- rownames(id)[which(id$HMPbodysubsite==body_site)]
-
-#put the samples in columns, and the OTUs in rows
-site <- otu[rownames(otu) %in% site.id,]
-
-# turn matrix to numeric, transpose so that colnames are sample names, rownames are OTUs
-site.num <- apply(site, 1, function(x){as.numeric(x)})
-rownames(site.num) <- colnames(site)
-site <- site.num
-
-#pick 50 random samples
-randomSampleIndex <- as.integer(sample(seq(1,length(colnames(site)),1),50,replace=FALSE))
-site.rand <- site[,randomSampleIndex]
-metadata <- id[match(colnames(data),rownames(id)),]
-
-# remove all 0 count OTUs
-data.sum <- apply(site.rand, 1, sum)
-data <- site.rand[data.sum > 0,]
-
-#sort from least to most abundant
-data.sum <- apply(data, 1, sum)
-data <- data[order(data.sum)]
-
-#save sampled data set
-write.table(data,file="50_random_hmp_gut_samples_otu.txt",quote=FALSE,sep="\t")
-#read with
-# read.table("50_random_hmp_gut_samples_otu.txt", header=TRUE, sep="\t", row.names=1)
 
 fakeEffectSummary <- list()
 summaryIndex <- 1

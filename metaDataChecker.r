@@ -15,6 +15,7 @@ library(GUniFrac)
 library(ape)
 library(phangorn)
 
+
 metaDataChecker.init <- function(treeFilePath) {
 	metaDataChecker.tree <<- read.tree(treeFilePath)
 	if (!is.rooted(tree)) {
@@ -50,9 +51,9 @@ pairwiseConditionComparator <- function(otu,groups,folderName,analysis) {
 		for(j in i+1:length(conditions)) {
 			group1indices <- which(groups==conditions[i])
 			group2indices <- which(groups==conditions[j])
-			data$groups[[index]] <- groups[c(group1indices,group2indices)
+			data$groups[[index]] <- groups[c(group1indices,group2indices)]
 			data$samples[[index]] <- rownames(otu)[c(group1indices,group2indices)]
-			data$pcoa <- pcoa(data$distMat[which(rownames(data$distMat) %in% data$samples[[index]]),which(colnames(data$distMat) %in% data$samples[[index]])])
+			data$pcoa[[index]] <- pcoa(data$distMat[which(rownames(data$distMat) %in% data$samples[[index]]),which(colnames(data$distMat) %in% data$samples[[index]])])
 			data$wilcoxinRankSum[[index]] <- t(apply(t(otu[c(group1indices,group2indices)]),1,function(x) { as.numeric(wilcox.test(x[1:length(group1indices)], x[length(group1indices):length(c(group1indices,group2indices))])[3]) } ))
 			data$wilcoxinRankSumBH[[index]] <- p.adjust(data$wilcoxinRankSum[[index]], method="BH")
 			index <- index + 1
@@ -79,7 +80,8 @@ getPcoaSeparation <- function(pcoa,groups,component) {
 	#conditions[1] vs conditions[2] -- expect pairwise condition comparison
 	group1indices <- which(groups==conditions[1])
 	group2indices <- which(groups==conditions[2])
-	return average(pcoa[group1indices,component])
+	distance <- abs(mean(pcoa[group1indices,component]) - mean(pcoa[group2indices,component]))
+	return(distance)
 }
 
 checkMetaData <- function (otu, metadata, folderName)
