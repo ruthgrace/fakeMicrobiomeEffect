@@ -114,6 +114,11 @@ id <- read.table("../fodor/v35_map_uniquebyPSN.txt", header=TRUE, sep="\t", row.
 #read OTU count data
 otu <- t( read.table("../fodor/otu_table_psn_v35.txt", header=T, sep="\t", row.names=1, check.names=FALSE) )
 
+#### MAKE SURE YOU HAVE APPROPRIATE SUBTREE OR ELSE GUNIFRAC WILL TAKE A MILLION YEARS DROPPING THE TIPS
+
+#intiialize metaDataChecker tree
+metaDataChecker.init("rep_set_v35_subtree.tre")
+
 #examine gut samples only
 body_site <- "Stool"
 site.id <- rownames(id)[which(id$HMPbodysubsite==body_site)]

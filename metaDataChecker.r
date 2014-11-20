@@ -15,7 +15,7 @@ library(GUniFrac)
 library(ape)
 library(phangorn)
 
-init <- function(treeFilePath) {
+metaDataChecker.init <- function(treeFilePath) {
 	metaDataChecker.tree <<- read.tree(treeFilePath)
 	if (!is.rooted(tree)) {
 		metaDataChecker.tree <<- midpoint(metaDataChecker.tree)
@@ -23,33 +23,36 @@ init <- function(treeFilePath) {
 }
 
 pairwiseConditionComparator <- function(otu,groups,folderName,analysis) {
-	otu$distmat <- list()
+	
+	otu <- list()
+	
+	conditions <- unique(groups)
+	otu$nConditions <- length(conditions)*(length(conditions)-1)
+
 	if (analysis == "unifrac") {
-		distMat <- GUniFrac(t(otu),metaDataChecker.tree,c(1))
+		otu$distMat <- GUniFrac(t(otu),metaDataChecker.tree,c(1))
 	}
 	else {
 		if (analysis != "euclidean") {
 			warning("no valid analysis method specified. valid methods are unifrac and euclidean. proceeding with euclidean")
 		}
-		distMat <- vegdist(t(otu),method="euclidean")
+		otu$distMat <- vegdist(t(otu),method="euclidean")
 	}
 
-	otu <- list()
-	
-	otu$pcoa <- list()
+	otu$pcoa <- pcoa(otu$distMat)
+
 	otu$groups <- list()
+	otu$samples <- list()
+	index <- 1
+	for (i in 1:length(conditions)-1) {
+		for(j in i+1:length(conditions)) {
+			otu$groups[[index]] <- 
+			otu$samples[[index]] <- 
+			index <- index + 1
+		}
+	}	
 
-	conditions <- unique(groups)
-
-
-
-	#unifrac // euclidean ???
-	#pcoa
-
-	#return pcoa list
-
-	# wilcoxin rank sum
-
+	# add wilcoxin rank sum
 
 }
 
@@ -67,6 +70,7 @@ getSeparation <- function(comparisonSummary,groups) {
 getPcoaSeparation <- function(pcoa,groups,component) {
 	conditions <- unique(groups)
 
+	# not done yet
 }
 
 checkMetaData <- function (otu, metadata, folderName)
