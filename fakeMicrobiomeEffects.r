@@ -213,23 +213,30 @@ summaryIndex <- summaryIndex+1
 
 ################# SPARSITY TEST ##################
 
-#remove OTUs that are rarer than 1% in any every sample
+#remove OTUs that are rarer than 1% (1/100) in any every sample
 data.sparse1 <- data[apply(data.prop0, 1, max) >= 0.01,]
 #get proportional data
 data.sparse1.prop <- prop(data.sparse1)
-#get clr data
-data.sparse1.clr <- clr(data.sparse1)
+#get clr dirichlet data
+data.sparse1.d <- dirichlet(data.sparse1)
+data.sparse1.clr <- clr(data.sparse1.d)
+
+#remove OTUs that are rarer than 0.1% (1/1,000) in any every sample
+data.sparse01 <- data[apply(data.prop0, 1, max) >= 0.001,]
+#get proportional data
+data.sparse01.prop <- prop(data.sparse01)
+#get clr dirichlet data
+data.sparse01.d <- dirichlet(data.sparse01)
+data.sparse01.clr <- clr(data.sparse01.d)
+
+#remove OTUs that are rarer than 0.001% (1/10,000) in any every sample
+data.sparse001 <- data[apply(data.prop0, 1, max) >= 0.0001,]
+#get proportional data
+data.sparse001.prop <- prop(data.sparse001)
+#get clr dirichlet data
+data.sparse001.d <- dirichlet(data.sparse001)
+data.sparse001.clr <- clr(data.sparse001.d)
 
 
 
-#remove OTUs that are rarer than 0.1% in any every sample
-site.abund <- site.non0[apply(site.prop0, 1, max) >= 0.001,]
-site.prop <- apply(site.abund, 2, function(x){x/sum(x)})
 
-#remove OTUs that are rarer than 0.01% in any every sample
-site.abund <- site.non0[apply(site.prop0, 1, max) >= 0.001,]
-site.prop <- apply(site.abund, 2, function(x){x/sum(x)})
-
-#remove OTUs that are rarer than 0.001% in any every sample
-site.abund <- site.non0[apply(site.prop0, 1, max) >= 0.001,]
-site.prop <- apply(site.abund, 2, function(x){x/sum(x)})
