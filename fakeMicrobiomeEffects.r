@@ -176,26 +176,30 @@ dir.create(file.path(mainDir, "Sequencing_Depth_Adjustments"))
 
 #bootstrap rarification
 data.bs <- bootstrap2000(data)
+#filter out metadata from discarded samples
+metadata.bs <- metadata[match(colnames(data.bs),rownames(metadata)),]
 #try proportional and CLR
 data.bs.prop <- prop(data.bs)
 data.bs.clr <- clr(data.bs)
 
-[summaryIndex]] <- checkMetaData(data.bs.prop,metadata,"Sequencing_Depth_Adjustments/Bootstrap_Proportions")
+[summaryIndex]] <- checkMetaData(data.bs.prop,metadata.bs,"Sequencing_Depth_Adjustments/Bootstrap_Proportions")
 summaryIndex <- summaryIndex+1
 
-[summaryIndex]] <- checkMetaData(data.bs.clr,metadata,"Sequencing_Depth_Adjustments/Boostrap_CLR")
+[summaryIndex]] <- checkMetaData(data.bs.clr,metadata.bs,"Sequencing_Depth_Adjustments/Boostrap_CLR")
 summaryIndex <- summaryIndex+1
 
 #jackknife rarification
 data.jk <- jackknife(data)
+#filter out metadata from discarded samples
+metadata.jk <- metadata[match(colnames(data.jk),rownames(metadata)),]
 #try proportional and CLR
 data.jk.prop <- prop(data.jk)
 data.jk.clr <- clr(data.jk)
 
-[summaryIndex]] <- checkMetaData(data.jk.prop,metadata,"Sequencing_Depth_Adjustments/Jackknife_Proportions")
+[summaryIndex]] <- checkMetaData(data.jk.prop,metadata.jk,"Sequencing_Depth_Adjustments/Jackknife_Proportions")
 summaryIndex <- summaryIndex+1
 
-[summaryIndex]] <- checkMetaData(data.jk.clr,metadata,"Sequencing_Depth_Adjustments/Jackknife_CLR")
+[summaryIndex]] <- checkMetaData(data.jk.clr,metadata.jk,"Sequencing_Depth_Adjustments/Jackknife_CLR")
 summaryIndex <- summaryIndex+1
 
 #dirichlet
@@ -236,7 +240,4 @@ data.sparse001.prop <- prop(data.sparse001)
 #get clr dirichlet data
 data.sparse001.d <- dirichlet(data.sparse001)
 data.sparse001.clr <- clr(data.sparse001.d)
-
-
-
 
