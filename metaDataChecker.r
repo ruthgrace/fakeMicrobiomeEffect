@@ -24,53 +24,62 @@ metaDataChecker.init <- function(treeFilePath) {
 
 pairwiseConditionComparator <- function(otu,groups,folderName,analysis) {
 	
-	otu <- list()
+	data <- list()
 	
 	conditions <- unique(groups)
-	otu$nConditions <- length(conditions)*(length(conditions)-1)
+	data$nConditions <- length(conditions)*(length(conditions)-1)
 
 	if (analysis == "unifrac") {
-		otu$distMat <- GUniFrac(t(otu),metaDataChecker.tree,c(1))
+		data$distMat <- GUniFrac(t(otu),metaDataChecker.tree,c(1))
 	}
 	else {
 		if (analysis != "euclidean") {
 			warning("no valid analysis method specified. valid methods are unifrac and euclidean. proceeding with euclidean")
 		}
-		otu$distMat <- vegdist(t(otu),method="euclidean")
+		data$distMat <- vegdist(t(otu),method="euclidean")
 	}
 
-	otu$pcoa <- pcoa(otu$distMat)
+	data$pcoa <- list()
 
-	otu$groups <- list()
-	otu$samples <- list()
+	data$groups <- list()
+	data$samples <- list()
+	data$wilcoxinRankSum <- list()
+	data$wilcoxinRankSumBH <- list()
 	index <- 1
 	for (i in 1:length(conditions)-1) {
 		for(j in i+1:length(conditions)) {
-			otu$groups[[index]] <- 
-			otu$samples[[index]] <- 
+			group1indices <- which(groups==conditions[i])
+			group2indices <- which(groups==conditions[j])
+			data$groups[[index]] <- groups[c(group1indices,group2indices)
+			data$samples[[index]] <- rownames(otu)[c(group1indices,group2indices)]
+			data$pcoa <- pcoa(data$distMat[which(rownames(data$distMat) %in% data$samples[[index]]),which(colnames(data$distMat) %in% data$samples[[index]])])
+			data$wilcoxinRankSum[[index]] <- t(apply(t(otu[c(group1indices,group2indices)]),1,function(x) { as.numeric(wilcox.test(x[1:length(group1indices)], x[length(group1indices):length(c(group1indices,group2indices))])[3]) } ))
+			data$wilcoxinRankSumBH[[index]] <- p.adjust(data$wilcoxinRankSum[[index]], method="BH")
 			index <- index + 1
 		}
-	}	
-
-	# add wilcoxin rank sum
+	}
 
 }
 
-getSeparation <- function(comparisonSummary,groups) {
+getSeparation <- function(comparisonSummary,metadata) {
 	for (i in 1:length(comparisonSummary)) {
-		comparisonSummary[[i]]$nConditions <- length(unique(groups))
+		comparisonSummary[[i]]$nConditions <- levels(metadata[i])
+		comparisonSummary[[i]]$separation1 <- list()
+		comparisonSummary[[i]]$separation2 <- list()
 		for (j in 1:length(comparisonSummary[[i]]$pcoa)) {
-			comparisonSummary[[i]]$separation1 <- getPcoaSeparation(comparisonSummary[[i]]$pcoa[[j]],comparisonSummary[[i]]$groups[[j]],1)
-			comparisonSummary[[i]]$separation2 <- getPcoaSeparation(comparisonSummary[[i]]$pcoa[[j]],comparisonSummary[[i]]$groups[[j]],2)
+			comparisonSummary[[i]]$separation1[[j]] <- getPcoaSeparation(comparisonSummary[[i]]$pcoa[[j]],comparisonSummary[[i]]$groups[[j]],1)
+			comparisonSummary[[i]]$separation2[[j]] <- getPcoaSeparation(comparisonSummary[[i]]$pcoa[[j]],comparisonSummary[[i]]$groups[[j]],2)
 		}
 	}
 }
 
-#get average PCoA distance on first vector
+#get average PCoA distance on given component
 getPcoaSeparation <- function(pcoa,groups,component) {
 	conditions <- unique(groups)
-
-	# not done yet
+	#conditions[1] vs conditions[2] -- expect pairwise condition comparison
+	group1indices <- which(groups==conditions[1])
+	group2indices <- which(groups==conditions[2])
+	return average(pcoa[group1indices,component])
 }
 
 checkMetaData <- function (otu, metadata, folderName)
@@ -98,15 +107,15 @@ checkMetaData <- function (otu, metadata, folderName)
 	mainDir <- getwd()
 	dir.create(file.path(mainDir, folderName))
 
-	comparisonSummary <- list()
+	comparisonData <- list()
 
 	# compare $visitno, $sex, $HMPbodysubset (multiple sites -- do a pairwise comparison), $readCountGroups, $imaginaryGrouping
-	comparisonSummary$visitno <- pairwiseConditionComparator(otu,metadata$visitno,folderName)
-	comparisonSummary$sex <- pairwiseConditionComparator(otu,metadata$sex,folderName)
-	comparisonSummary$HMPbodysubset <- pairwiseConditionComparator(otu,metadata$HMPbodysubset,folderName)
-	comparisonSummary$readCountGroups <- pairwiseConditionComparator(otu,metadata$readCountGroups,folderName)
-	comparisonSummary$imaginaryGrouping <- pairwiseConditionComparator(otu,metadata$imaginaryGrouping,folderName)
+	comparisonData$visitno <- pairwiseConditionComparator(otu,metadata$visitno,folderName)
+	comparisonData$sex <- pairwiseConditionComparator(otu,metadata$sex,folderName)
+	comparisonData$HMPbodysubset <- pairwiseConditionComparator(otu,metadata$HMPbodysubset,folderName)
+	comparisonData$readCountGroups <- pairwiseConditionComparator(otu,metadata$readCountGroups,folderName)
+	comparisonData$imaginaryGrouping <- pairwiseConditionComparator(otu,metadata$imaginaryGrouping,folderName)
 
-	comparisonSummary <- getSeparation(comparisonSummary)
+	comparisonSummary <- getSeparation(comparisonData,metadata)
 
 }

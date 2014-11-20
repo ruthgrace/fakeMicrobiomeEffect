@@ -16,11 +16,17 @@ library(plyr)
 ############ HELPER FUNCTIONS ############
 
 #dirichlet method - gets dirichlet distribution of reads per OTU, returns median
+# does 128 replicates (median converges at ~64 replicates)
 #stolen from Dr. Greg Gloor
-rdirichlet <- function (n, alpha)
+rdirichlet <- function (alpha)
 {
-  if(length(n) > 1) n <- length(n)
-  if(length(n) == 0 || as.integer(n) == 0) return(numeric(0))
+	n <- 128
+  if(length(n) > 1){
+  	n <- length(n)
+  }
+  if(length(n) == 0 || as.integer(n) == 0) {
+  	return(numeric(0))
+  }
   n <- as.integer(n)
   if(n < 0) stop("integer(n) can not be negative in rtriang")
 
@@ -103,7 +109,7 @@ rarefy <- function(otu,minReadCount,withReplacement)
 
 #gets median of dirichlet distribution for each otu count per sample
 dirichlet <- function(otu) {
-	return(apply(otu, 2, function(x){rdirichlet(1,x)}))
+	return(apply(otu, 2, function(x){rdirichlet(x)}))
 }
 
 ####################### INTITIALIZATION SCRIPT #########################
