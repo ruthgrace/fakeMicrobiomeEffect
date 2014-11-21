@@ -16,14 +16,7 @@ library(ape)
 library(phangorn)
 
 
-metaDataChecker.init <- function(treeFilePath) {
-	metaDataChecker.tree <<- read.tree(treeFilePath)
-	if (!is.rooted(tree)) {
-		metaDataChecker.tree <<- midpoint(metaDataChecker.tree)
-	}
-}
-
-pairwiseConditionComparator <- function(otu,groups,folderName,analysis) {
+pairwiseConditionComparator <- function(otu,otucounts,groups,folderName,analysis,tree) {
 	
 	data <- list()
 	
@@ -31,7 +24,7 @@ pairwiseConditionComparator <- function(otu,groups,folderName,analysis) {
 	data$nConditions <- length(conditions)*(length(conditions)-1)
 
 	if (analysis == "unifrac") {
-		data$distMat <- GUniFrac(t(otu),metaDataChecker.tree,c(1))
+		data$distMat <- GUniFrac(t(otucounts),tree,c(1))
 	}
 	else {
 		if (analysis != "euclidean") {
@@ -59,7 +52,6 @@ pairwiseConditionComparator <- function(otu,groups,folderName,analysis) {
 			index <- index + 1
 		}
 	}
-
 }
 
 getSeparation <- function(comparisonSummary,metadata) {
@@ -84,7 +76,7 @@ getPcoaSeparation <- function(pcoa,groups,component) {
 	return(distance)
 }
 
-checkMetaData <- function (otu, metadata, folderName)
+checkMetaData <- function (otu, otucounts, metadata, folderName,analysis,tree)
 {
 
 	nSamples <- length(rownames(metadata))
@@ -112,11 +104,11 @@ checkMetaData <- function (otu, metadata, folderName)
 	comparisonData <- list()
 
 	# compare $visitno, $sex, $HMPbodysubset (multiple sites -- do a pairwise comparison), $readCountGroups, $imaginaryGrouping
-	comparisonData$visitno <- pairwiseConditionComparator(otu,metadata$visitno,folderName)
-	comparisonData$sex <- pairwiseConditionComparator(otu,metadata$sex,folderName)
-	comparisonData$HMPbodysubset <- pairwiseConditionComparator(otu,metadata$HMPbodysubset,folderName)
-	comparisonData$readCountGroups <- pairwiseConditionComparator(otu,metadata$readCountGroups,folderName)
-	comparisonData$imaginaryGrouping <- pairwiseConditionComparator(otu,metadata$imaginaryGrouping,folderName)
+	comparisonData$visitno <- pairwiseConditionComparator(otu,otucounts,metadata$visitno,folderName,analysis,tree)
+	comparisonData$sex <- pairwiseConditionComparator(otu,otucounts,metadata$sex,folderName,analysis,tree)
+	comparisonData$HMPbodysubset <- pairwiseConditionComparator(otu,otucounts,metadata$HMPbodysubset,folderName,analysis,tree)
+	comparisonData$readCountGroups <- pairwiseConditionComparator(otu,otucounts,metadata$readCountGroups,folderName,analysis,tree)
+	comparisonData$imaginaryGrouping <- pairwiseConditionComparator(otu,otucounts,metadata$imaginaryGrouping,folderName,analysis,tree)
 
 	comparisonSummary <- getSeparation(comparisonData,metadata)
 
