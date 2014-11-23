@@ -62,10 +62,12 @@ getSeparation <- function(comparisonSummary,metadata) {
 		comparisonSummary[[i]]$nConditions <- levels(factor(metadata[,i]))
 		comparisonSummary[[i]]$separation1 <- list()
 		comparisonSummary[[i]]$separation2 <- list()
-		for (j in 1:length(comparisonSummary[[i]]$pcoa)) {
-			print(paste("i",i,"j",j,colnames(metadata)[i]))
-			comparisonSummary[[i]]$separation1[[j]] <- getPcoaSeparation(comparisonSummary[[i]]$pcoa[[j]],comparisonSummary[[i]]$groups[[j]],1)
-			comparisonSummary[[i]]$separation2[[j]] <- getPcoaSeparation(comparisonSummary[[i]]$pcoa[[j]],comparisonSummary[[i]]$groups[[j]],2)
+		if (length(comparisonSummary[[i]]$pcoa)>=1) {
+			for (j in 1:length(comparisonSummary[[i]]$pcoa)) {
+				print(paste("i",i,"j",j,colnames(metadata)[i]))
+				comparisonSummary[[i]]$separation1[[j]] <- getPcoaSeparation(comparisonSummary[[i]]$pcoa[[j]],comparisonSummary[[i]]$groups[[j]],1)
+				comparisonSummary[[i]]$separation2[[j]] <- getPcoaSeparation(comparisonSummary[[i]]$pcoa[[j]],comparisonSummary[[i]]$groups[[j]],2)
+			}
 		}
 	}
 }
