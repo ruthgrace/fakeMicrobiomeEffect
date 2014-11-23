@@ -24,7 +24,7 @@ pairwiseConditionComparator <- function(otu,otucounts,groups,folderName,analysis
 	data$nConditions <- length(conditions)*(length(conditions)-1)
 
 	if (analysis == "unifrac") {
-		data$distMat <- GUniFrac(t(otucounts),tree,c(1))
+		data$distMat <- GUniFrac(otucounts,tree,c(1))$unifracs[,,"d_1"]
 	}
 	else {
 		if (analysis != "euclidean") {
@@ -40,8 +40,10 @@ pairwiseConditionComparator <- function(otu,otucounts,groups,folderName,analysis
 	data$wilcoxinRankSum <- list()
 	data$wilcoxinRankSumBH <- list()
 	index <- 1
-	for (i in 1:length(conditions)-1) {
-		for(j in i+1:length(conditions)) {
+	print("test")
+	for (i in 1:(length(conditions)-1)) {
+		for(j in (i+1):length(conditions)) {
+			print(paste("i",i,"j",j))
 			group1indices <- which(groups==conditions[i])
 			group2indices <- which(groups==conditions[j])
 			data$groups[[index]] <- groups[c(group1indices,group2indices)]
@@ -52,14 +54,16 @@ pairwiseConditionComparator <- function(otu,otucounts,groups,folderName,analysis
 			index <- index + 1
 		}
 	}
+	return(data)
 }
 
 getSeparation <- function(comparisonSummary,metadata) {
 	for (i in 1:length(comparisonSummary)) {
-		comparisonSummary[[i]]$nConditions <- levels(metadata[i])
+		comparisonSummary[[i]]$nConditions <- levels(factor(metadata[,i]))
 		comparisonSummary[[i]]$separation1 <- list()
 		comparisonSummary[[i]]$separation2 <- list()
 		for (j in 1:length(comparisonSummary[[i]]$pcoa)) {
+			print(paste("i",i,"j",j,colnames(metadata)[i]))
 			comparisonSummary[[i]]$separation1[[j]] <- getPcoaSeparation(comparisonSummary[[i]]$pcoa[[j]],comparisonSummary[[i]]$groups[[j]],1)
 			comparisonSummary[[i]]$separation2[[j]] <- getPcoaSeparation(comparisonSummary[[i]]$pcoa[[j]],comparisonSummary[[i]]$groups[[j]],2)
 		}
@@ -72,7 +76,7 @@ getPcoaSeparation <- function(pcoa,groups,component) {
 	#conditions[1] vs conditions[2] -- expect pairwise condition comparison
 	group1indices <- which(groups==conditions[1])
 	group2indices <- which(groups==conditions[2])
-	distance <- abs(mean(pcoa[group1indices,component]) - mean(pcoa[group2indices,component]))
+	distance <- abs(mean(pcoa$vectors[group1indices,component]) - mean(pcoa$vectors[group2indices,component]))
 	return(distance)
 }
 
@@ -89,7 +93,7 @@ checkMetaData <- function (otu, otucounts, metadata, folderName,analysis,tree)
 
 	#add metadata for fake "read count category"
 	readCountGroups <- as.factor(c(rep("low",floor(nSamples/2)),rep("high",(nSamples - floor(nSamples/2)))))
-	readCounts <- apply(data,2,sum)
+	readCounts <- apply(data,1,sum)
 	readCountOrder <- order(readCounts)
 	#assign the half of samples with lowest counts to "low" read count condition
 	readCountGroups[readCountOrder[c(1:floor(nSamples/2))]] <- levels(readCountGroups)[2]
@@ -106,10 +110,9 @@ checkMetaData <- function (otu, otucounts, metadata, folderName,analysis,tree)
 	# compare $visitno, $sex, $HMPbodysubset (multiple sites -- do a pairwise comparison), $readCountGroups, $imaginaryGrouping
 	comparisonData$visitno <- pairwiseConditionComparator(otu,otucounts,metadata$visitno,folderName,analysis,tree)
 	comparisonData$sex <- pairwiseConditionComparator(otu,otucounts,metadata$sex,folderName,analysis,tree)
-	comparisonData$HMPbodysubset <- pairwiseConditionComparator(otu,otucounts,metadata$HMPbodysubset,folderName,analysis,tree)
 	comparisonData$readCountGroups <- pairwiseConditionComparator(otu,otucounts,metadata$readCountGroups,folderName,analysis,tree)
 	comparisonData$imaginaryGrouping <- pairwiseConditionComparator(otu,otucounts,metadata$imaginaryGrouping,folderName,analysis,tree)
-
-	comparisonSummary <- getSeparation(comparisonData,metadata)
+	conditionIndices <- c(2,3,9,10)
+	comparisonSummary <- getSeparation(comparisonData[conditionIndices],metadata[conditionIndices])
 
 }

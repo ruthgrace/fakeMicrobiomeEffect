@@ -87,6 +87,7 @@ fakeEffectSummary <- list()
 summaryIndex <- 1
 
 ################# CLR VS PROPORTION TEST ##################
+print("clr vs proportion test")
 
 #get proportional data
 data.prop <- prop(data)
@@ -105,6 +106,7 @@ fakeEffectSummary[[summaryIndex]] <- checkMetaData(data.clr,data,metadata,"Compo
 summaryIndex <- summaryIndex+1
 
 ################# SEQUENCING DEPTH ADJUSTMENT TEST ##################
+print("sequencing depth adjustment test")
 
 #create directory for results
 mainDir <- getwd()
@@ -118,10 +120,10 @@ metadata.bs <- metadata[match(colnames(data.bs),rownames(metadata)),]
 data.bs.prop <- prop(data.bs)
 data.bs.clr <- clr(data.bs)
 
-[summaryIndex]] <- checkMetaData(data.bs.prop,data.bs,metadata.bs,"Sequencing_Depth_Adjustments/Bootstrap_Proportions","unifrac",tree)
+fakeEffectSummary[[summaryIndex]] <- checkMetaData(data.bs.prop,data.bs,metadata.bs,"Sequencing_Depth_Adjustments/Bootstrap_Proportions","unifrac",tree)
 summaryIndex <- summaryIndex+1
 
-[summaryIndex]] <- checkMetaData(data.bs.clr,data.bs,metadata.bs,"Sequencing_Depth_Adjustments/Boostrap_CLR","euclidean",tree)
+fakeEffectSummary[[summaryIndex]] <- checkMetaData(data.bs.clr,data.bs,metadata.bs,"Sequencing_Depth_Adjustments/Boostrap_CLR","euclidean",tree)
 summaryIndex <- summaryIndex+1
 
 #jackknife rarification
@@ -132,10 +134,10 @@ metadata.jk <- metadata[match(colnames(data.jk),rownames(metadata)),]
 data.jk.prop <- prop(data.jk)
 data.jk.clr <- clr(data.jk)
 
-[summaryIndex]] <- checkMetaData(data.jk.prop,data.jk,metadata.jk,"Sequencing_Depth_Adjustments/Jackknife_Proportions","unifrac",tree)
+fakeEffectSummary[[summaryIndex]] <- checkMetaData(data.jk.prop,data.jk,metadata.jk,"Sequencing_Depth_Adjustments/Jackknife_Proportions","unifrac",tree)
 summaryIndex <- summaryIndex+1
 
-[summaryIndex]] <- checkMetaData(data.jk.clr,data.jk,metadata.jk,"Sequencing_Depth_Adjustments/Jackknife_CLR","euclidean",tree)
+fakeEffectSummary[[summaryIndex]] <- checkMetaData(data.jk.clr,data.jk,metadata.jk,"Sequencing_Depth_Adjustments/Jackknife_CLR","euclidean",tree)
 summaryIndex <- summaryIndex+1
 
 #dirichlet
@@ -144,14 +146,15 @@ data.d <- dirichlet(data)
 data.d.prop <- prop(data.d)
 data.d.clr <- clr(data.d)
 
-[summaryIndex]] <- checkMetaData(data.d.prop,data.d,metadata,"Sequencing_Depth_Adjustments/Dirichlet_Proportions","unifrac",tree)
+fakeEffectSummary[[summaryIndex]] <- checkMetaData(data.d.prop,data.d,metadata,"Sequencing_Depth_Adjustments/Dirichlet_Proportions","unifrac",tree)
 summaryIndex <- summaryIndex+1
 
-[summaryIndex]] <- checkMetaData(data.d.clr,data.d,metadata,"Sequencing_Depth_Adjustments/Dirichlet_CLR","euclidean",tree)
+fakeEffectSummary[[summaryIndex]] <- checkMetaData(data.d.clr,data.d,metadata,"Sequencing_Depth_Adjustments/Dirichlet_CLR","euclidean",tree)
 summaryIndex <- summaryIndex+1
 
 
 ################# SPARSITY TEST ##################
+print("sparsity test")
 
 #remove OTUs that are rarer than 1% (1/100) in any every sample
 data.sparse1 <- data[apply(data.prop0, 1, max) >= 0.01,]
@@ -161,10 +164,10 @@ data.sparse1.prop <- prop(data.sparse1)
 data.sparse1.d <- dirichlet(data.sparse1)
 data.sparse1.clr <- clr(data.sparse1.d)
 
-[summaryIndex]] <- checkMetaData(data.sparse1.prop,data.sparse1,metadata,"Sparsity/Less_rare_than_1_percent_proportions","unifrac",tree)
+fakeEffectSummary[[summaryIndex]] <- checkMetaData(data.sparse1.prop,data.sparse1,metadata,"Sparsity/Less_rare_than_1_percent_proportions","unifrac",tree)
 summaryIndex <- summaryIndex+1
 
-[summaryIndex]] <- checkMetaData(data.sparse1.clr,data.sparse1,metadata,"Sparsity/Less_rare_than_1_percent_clr","euclidean",tree)
+fakeEffectSummary[[summaryIndex]] <- checkMetaData(data.sparse1.clr,data.sparse1,metadata,"Sparsity/Less_rare_than_1_percent_clr","euclidean",tree)
 summaryIndex <- summaryIndex+1
 
 #remove OTUs that are rarer than 0.1% (1/1,000) in any every sample
@@ -175,10 +178,10 @@ data.sparse01.prop <- prop(data.sparse01)
 data.sparse01.d <- dirichlet(data.sparse01)
 data.sparse01.clr <- clr(data.sparse01.d)
 
-[summaryIndex]] <- checkMetaData(data.sparse01.prop,data.sparse01,metadata,"Sparsity/Less_rare_than_01_percent_proportions","unifrac",tree)
+fakeEffectSummary[[summaryIndex]] <- checkMetaData(data.sparse01.prop,data.sparse01,metadata,"Sparsity/Less_rare_than_01_percent_proportions","unifrac",tree)
 summaryIndex <- summaryIndex+1
 
-[summaryIndex]] <- checkMetaData(data.sparse01.clr,data.sparse01,metadata,"Sparsity/Less_rare_than_01_percent_clr","euclidean",tree)
+fakeEffectSummary[[summaryIndex]] <- checkMetaData(data.sparse01.clr,data.sparse01,metadata,"Sparsity/Less_rare_than_01_percent_clr","euclidean",tree)
 summaryIndex <- summaryIndex+1
 
 #remove OTUs that are rarer than 0.001% (1/10,000) in any every sample
@@ -189,8 +192,8 @@ data.sparse001.prop <- prop(data.sparse001)
 data.sparse001.d <- dirichlet(data.sparse001)
 data.sparse001.clr <- clr(data.sparse001.d)
 
-[summaryIndex]] <- checkMetaData(data.sparse001.prop,data.sparse001,metadata,"Sparsity/Less_rare_than_001_percent_proportions","unifrac",tree)
+fakeEffectSummary[[summaryIndex]] <- checkMetaData(data.sparse001.prop,data.sparse001,metadata,"Sparsity/Less_rare_than_001_percent_proportions","unifrac",tree)
 summaryIndex <- summaryIndex+1
 
-[summaryIndex]] <- checkMetaData(data.sparse001.clr,data.sparse001,metadata,"Sparsity/Less_rare_than_001_percent_clr","euclidean",tree)
+fakeEffectSummary[[summaryIndex]] <- checkMetaData(data.sparse001.clr,data.sparse001,metadata,"Sparsity/Less_rare_than_001_percent_clr","euclidean",tree)
 summaryIndex <- summaryIndex+1
