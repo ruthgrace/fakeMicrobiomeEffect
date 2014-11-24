@@ -115,7 +115,7 @@ dir.create(file.path(mainDir, "Sequencing_Depth_Adjustments"))
 #bootstrap rarification
 data.bs <- bootstrap2000(data)
 #filter out metadata from discarded samples
-metadata.bs <- metadata[match(colnames(data.bs),rownames(metadata)),]
+metadata.bs <- metadata[match(rownames(data.bs),rownames(metadata)),]
 #try proportional and CLR
 data.bs.prop <- prop(data.bs)
 data.bs.clr <- clr(data.bs)
@@ -127,9 +127,9 @@ fakeEffectSummary[[summaryIndex]] <- checkMetaData(data.bs.clr,data.bs,metadata.
 summaryIndex <- summaryIndex+1
 
 #jackknife rarification
-data.jk <- jackknife(data)
+data.jk <- jackknife2000(data)
 #filter out metadata from discarded samples
-metadata.jk <- metadata[match(colnames(data.jk),rownames(metadata)),]
+metadata.jk <- metadata[match(rownames(data.jk),rownames(metadata)),]
 #try proportional and CLR
 data.jk.prop <- prop(data.jk)
 data.jk.clr <- clr(data.jk)
@@ -157,7 +157,7 @@ summaryIndex <- summaryIndex+1
 print("sparsity test")
 
 #remove OTUs that are rarer than 1% (1/100) in any every sample
-data.sparse1 <- data[apply(data.prop, 1, max) >= 0.01,]
+data.sparse1 <- data[,which(apply(data.prop, 2, max) >= 0.01)]
 #get proportional data
 data.sparse1.prop <- prop(data.sparse1)
 #get clr dirichlet data

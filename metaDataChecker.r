@@ -64,7 +64,6 @@ getSeparation <- function(comparisonSummary,metadata) {
 		if (length(comparisonSummary[[i]]$pcoa)>=1) {
 			for (j in 1:length(comparisonSummary[[i]]$pcoa)) {
 				print(paste("i",i,"j",j,colnames(metadata)[i]))
-				print(str(comparisonSummary[[i]]))
 				comparisonSummary[[i]]$separation1[[j]] <- getPcoaSeparation(comparisonSummary[[i]]$pcoa[[j]],comparisonSummary[[i]]$groups[[j]],1)
 				comparisonSummary[[i]]$separation2[[j]] <- getPcoaSeparation(comparisonSummary[[i]]$pcoa[[j]],comparisonSummary[[i]]$groups[[j]],2)
 			}

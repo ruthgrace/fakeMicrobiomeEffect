@@ -4,6 +4,8 @@
 #stolen from Dr. Greg Gloor
 rdirichlet <- function (alpha)
 {
+	test <- data.frame()
+	rownames(test) <- c(1,2,3,4,"error")
 	n <- 128
   if(length(n) > 1){
   	n <- length(n)
@@ -59,7 +61,6 @@ rarefy <- function(otu,minReadCount,withReplacement) {
 		warning("OTU names aren't distinct")
 	}
 
-	sampleNames <- colnames(otu)
 
 	# put all the OTUs we are sampling from into a list.
 	#  OTUs with zero counts aren't included, and OTUs with multiple counts are repeated
@@ -80,14 +81,16 @@ rarefy <- function(otu,minReadCount,withReplacement) {
 	bootstrap <- data.frame(lapply(samples.count,function(x) {x$freq[match(colnames(otu),levels(x$x)[as.numeric(x$x)])]} )	)
 	bootstrap[is.na(bootstrap)] <- 0
 
+	bootstrap <- t(bootstrap)
+
 	#preserve sample names (so that meta data can be matched) and OTU names
-	rownames(bootstrap) <- colnames(otu)
-	colnames(bootstrap) <- sampleNames[indices]
+	rownames(bootstrap) <- rownames(otu)[indices]
+	colnames(bootstrap) <- colnames(otu)
 
 	#remove all OTUs with zero counts
 	bootstrap.sum <- apply(bootstrap,1,sum)
 	bootstrap <- bootstrap[which(bootstrap.sum>0),]
-
+	
 	return(bootstrap)
 }
 
