@@ -143,13 +143,14 @@ summaryIndex <- summaryIndex+1
 #dirichlet
 data.d <- dirichlet(data)
 #try proportional and CLR
-data.d.prop <- prop(data.d)
+data.d.counts <- data.d[[1]]
+data.d.prop <- data.d[[2]]
 data.d.clr <- clr(data.d)
 
-fakeEffectSummary[[summaryIndex]] <- checkMetaData(data.d.prop,data.d,metadata,"Sequencing_Depth_Adjustments/Dirichlet_Proportions","unifrac",tree)
+fakeEffectSummary[[summaryIndex]] <- checkMetaData(data.d.prop,data.d.counts,metadata,"Sequencing_Depth_Adjustments/Dirichlet_Proportions","unifrac",tree)
 summaryIndex <- summaryIndex+1
 
-fakeEffectSummary[[summaryIndex]] <- checkMetaData(data.d.clr,data.d,metadata,"Sequencing_Depth_Adjustments/Dirichlet_CLR","euclidean",tree)
+fakeEffectSummary[[summaryIndex]] <- checkMetaData(data.d.clr,data.d.counts,metadata,"Sequencing_Depth_Adjustments/Dirichlet_CLR","euclidean",tree)
 summaryIndex <- summaryIndex+1
 
 
@@ -161,7 +162,7 @@ data.sparse1 <- data[,which(apply(data.prop, 2, max) >= 0.01)]
 #get proportional data
 data.sparse1.prop <- prop(data.sparse1)
 #get clr dirichlet data
-data.sparse1.d <- dirichlet(data.sparse1)
+data.sparse1.d <- dirichlet(prior(data.sparse1))[[1]]
 data.sparse1.clr <- clr(data.sparse1.d)
 
 fakeEffectSummary[[summaryIndex]] <- checkMetaData(data.sparse1.prop,data.sparse1,metadata,"Sparsity/Less_rare_than_1_percent_proportions","unifrac",tree)
@@ -175,7 +176,7 @@ data.sparse01 <- data[apply(data.prop0, 1, max) >= 0.001,]
 #get proportional data
 data.sparse01.prop <- prop(data.sparse01)
 #get clr dirichlet data
-data.sparse01.d <- dirichlet(data.sparse01)
+data.sparse01.d <- dirichlet(data.sparse01)[[1]]
 data.sparse01.clr <- clr(data.sparse01.d)
 
 fakeEffectSummary[[summaryIndex]] <- checkMetaData(data.sparse01.prop,data.sparse01,metadata,"Sparsity/Less_rare_than_01_percent_proportions","unifrac",tree)
@@ -189,7 +190,7 @@ data.sparse001 <- data[apply(data.prop0, 1, max) >= 0.0001,]
 #get proportional data
 data.sparse001.prop <- prop(data.sparse001)
 #get clr dirichlet data
-data.sparse001.d <- dirichlet(data.sparse001)
+data.sparse001.d <- dirichlet(data.sparse001)[[1]]
 data.sparse001.clr <- clr(data.sparse001.d)
 
 fakeEffectSummary[[summaryIndex]] <- checkMetaData(data.sparse001.prop,data.sparse001,metadata,"Sparsity/Less_rare_than_001_percent_proportions","unifrac",tree)
@@ -197,3 +198,6 @@ summaryIndex <- summaryIndex+1
 
 fakeEffectSummary[[summaryIndex]] <- checkMetaData(data.sparse001.clr,data.sparse001,metadata,"Sparsity/Less_rare_than_001_percent_clr","euclidean",tree)
 summaryIndex <- summaryIndex+1
+
+
+save(fakeEffectSummary,file="summary.dat") # load with load(file="summary.dat")

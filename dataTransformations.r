@@ -4,8 +4,8 @@
 #stolen from Dr. Greg Gloor
 rdirichlet <- function (alpha)
 {
-	test <- data.frame()
-	rownames(test) <- c(1,2,3,4,"error")
+	# test <- data.frame()
+	# rownames(test) <- c(1,2,3,"error")
 	n <- 128
   if(length(n) > 1){
   	n <- length(n)
@@ -19,7 +19,14 @@ rdirichlet <- function (alpha)
   if(is.vector(alpha)) alpha <- t(alpha)
   l <- dim(alpha)[2]
   x <- matrix(rgamma(l * n, t(alpha)), ncol = l, byrow=TRUE)  # Gere le recycling
-  return(x / rowSums(x))
+
+  x.median <- apply(x,2,median)
+
+  returnlist <- list()
+  returnlist[[1]] <- x.median
+  returnlist[[2]] <- x.median / sum(x.median)
+
+  return(returnlist)
 }
 
 #add prior of 0.5 to raw otu counts
@@ -96,5 +103,5 @@ rarefy <- function(otu,minReadCount,withReplacement) {
 
 #gets median of dirichlet distribution for each otu count per sample
 dirichlet <- function(otu) {
-	return(apply(otu, 2, function(x){rdirichlet(x)}))
+	return(t(apply(otu,1, function(x){rdirichlet(x)})))
 }
