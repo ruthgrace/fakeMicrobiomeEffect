@@ -157,7 +157,7 @@ summaryIndex <- summaryIndex+1
 print("sparsity test")
 
 #remove OTUs that are rarer than 1% (1/100) in any every sample
-data.sparse1 <- data[apply(data.prop0, 1, max) >= 0.01,]
+data.sparse1 <- data[apply(data.prop, 1, max) >= 0.01,]
 #get proportional data
 data.sparse1.prop <- prop(data.sparse1)
 #get clr dirichlet data

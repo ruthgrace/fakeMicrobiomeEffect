@@ -17,7 +17,6 @@ library(phangorn)
 
 
 pairwiseConditionComparator <- function(otu,otucounts,groups,folderName,analysis,tree) {
-	
 	data <- list()
 	
 	conditions <- unique(groups)
@@ -30,7 +29,7 @@ pairwiseConditionComparator <- function(otu,otucounts,groups,folderName,analysis
 		if (analysis != "euclidean") {
 			warning("no valid analysis method specified. valid methods are unifrac and euclidean. proceeding with euclidean")
 		}
-		data$distMat <- as.matrix(vegdist(t(otu),method="euclidean"))
+		data$distMat <- as.matrix(vegdist(otu,method="euclidean"))
 	}
 
 	data$pcoa <- list()
@@ -47,7 +46,7 @@ pairwiseConditionComparator <- function(otu,otucounts,groups,folderName,analysis
 			group1indices <- which(groups==conditions[i])
 			group2indices <- which(groups==conditions[j])
 			data$groups[[index]] <- groups[c(group1indices,group2indices)]
-			data$samples[[index]] <- colnames(otu)[c(group1indices,group2indices)]
+			data$samples[[index]] <- rownames(otu)[c(group1indices,group2indices)]
 			data$pcoa[[index]] <- pcoa(data$distMat[which(rownames(data$distMat) %in% data$samples[[index]]),which(colnames(data$distMat) %in% data$samples[[index]])])
 			data$wilcoxinRankSum[[index]] <- t(apply(t(otu[c(group1indices,group2indices)]),1,function(x) { as.numeric(wilcox.test(x[1:length(group1indices)], x[length(group1indices):length(c(group1indices,group2indices))])[3]) } ))
 			data$wilcoxinRankSumBH[[index]] <- p.adjust(data$wilcoxinRankSum[[index]], method="BH")
@@ -65,6 +64,7 @@ getSeparation <- function(comparisonSummary,metadata) {
 		if (length(comparisonSummary[[i]]$pcoa)>=1) {
 			for (j in 1:length(comparisonSummary[[i]]$pcoa)) {
 				print(paste("i",i,"j",j,colnames(metadata)[i]))
+				print(str(comparisonSummary[[i]]))
 				comparisonSummary[[i]]$separation1[[j]] <- getPcoaSeparation(comparisonSummary[[i]]$pcoa[[j]],comparisonSummary[[i]]$groups[[j]],1)
 				comparisonSummary[[i]]$separation2[[j]] <- getPcoaSeparation(comparisonSummary[[i]]$pcoa[[j]],comparisonSummary[[i]]$groups[[j]],2)
 			}
@@ -95,7 +95,7 @@ checkMetaData <- function (otu, otucounts, metadata, folderName,analysis,tree)
 
 	#add metadata for fake "read count category"
 	readCountGroups <- as.factor(c(rep("low",floor(nSamples/2)),rep("high",(nSamples - floor(nSamples/2)))))
-	readCounts <- apply(data,1,sum)
+	readCounts <- apply(otucounts,1,sum)
 	readCountOrder <- order(readCounts)
 	#assign the half of samples with lowest counts to "low" read count condition
 	readCountGroups[readCountOrder[c(1:floor(nSamples/2))]] <- levels(readCountGroups)[2]

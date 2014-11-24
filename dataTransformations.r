@@ -36,7 +36,7 @@ prop <- function(otu) {
 clr <- function(otu) {
 	otu.prior <- prior(otu)
 	otu.prop <- prop(otu.prior)
-	return(apply(otu.prop,1,function(x){log2(x) - mean(log2(x))}))
+	return(t(apply(otu.prop,1,function(x){log2(x) - mean(log2(x))})))
 }
 
 
@@ -64,7 +64,7 @@ rarefy <- function(otu,minReadCount,withReplacement) {
 	# put all the OTUs we are sampling from into a list.
 	#  OTUs with zero counts aren't included, and OTUs with multiple counts are repeated
 	sampleFrom <- list()
-	sampleFrom <- lapply(c(1:50),function(x) rep(rownames(data),data[,x]))
+	sampleFrom <- lapply(c(1:50),function(x) rep(colnames(otu),otu[x,]))
 
 	#remove reads with less than 2000 counts
 	indices <- which(lapply(sampleFrom,function(x) {length(x)})>=2000)
@@ -77,11 +77,11 @@ rarefy <- function(otu,minReadCount,withReplacement) {
 	samples.count <- lapply(samples.otu,function(x) {count(x)} )
 
 	#convert OTU names from factors to characters
-	bootstrap <- data.frame(lapply(samples.count,function(x) {x$freq[match(rownames(otu),as.character(x$x))]} )	)
+	bootstrap <- data.frame(lapply(samples.count,function(x) {x$freq[match(colnames(otu),levels(x$x)[as.numeric(x$x)])]} )	)
 	bootstrap[is.na(bootstrap)] <- 0
 
 	#preserve sample names (so that meta data can be matched) and OTU names
-	rownames(bootstrap) <- rownames(otu)
+	rownames(bootstrap) <- colnames(otu)
 	colnames(bootstrap) <- sampleNames[indices]
 
 	#remove all OTUs with zero counts
