@@ -30,7 +30,7 @@ pairwiseConditionComparator <- function(otu,otucounts,groups,folderName,analysis
 		if (analysis != "euclidean") {
 			warning("no valid analysis method specified. valid methods are unifrac and euclidean. proceeding with euclidean")
 		}
-		data$distMat <- vegdist(t(otu),method="euclidean")
+		data$distMat <- as.matrix(vegdist(t(otu),method="euclidean"))
 	}
 
 	data$pcoa <- list()
@@ -47,7 +47,7 @@ pairwiseConditionComparator <- function(otu,otucounts,groups,folderName,analysis
 			group1indices <- which(groups==conditions[i])
 			group2indices <- which(groups==conditions[j])
 			data$groups[[index]] <- groups[c(group1indices,group2indices)]
-			data$samples[[index]] <- rownames(otu)[c(group1indices,group2indices)]
+			data$samples[[index]] <- colnames(otu)[c(group1indices,group2indices)]
 			data$pcoa[[index]] <- pcoa(data$distMat[which(rownames(data$distMat) %in% data$samples[[index]]),which(colnames(data$distMat) %in% data$samples[[index]])])
 			data$wilcoxinRankSum[[index]] <- t(apply(t(otu[c(group1indices,group2indices)]),1,function(x) { as.numeric(wilcox.test(x[1:length(group1indices)], x[length(group1indices):length(c(group1indices,group2indices))])[3]) } ))
 			data$wilcoxinRankSumBH[[index]] <- p.adjust(data$wilcoxinRankSum[[index]], method="BH")
