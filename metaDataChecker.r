@@ -115,6 +115,6 @@ checkMetaData <- function (otu, otucounts, metadata, folderName,analysis,tree)
 	comparisonData$readCountGroups <- pairwiseConditionComparator(otu,otucounts,metadata$readCountGroups,folderName,analysis,tree)
 	comparisonData$imaginaryGrouping <- pairwiseConditionComparator(otu,otucounts,metadata$imaginaryGrouping,folderName,analysis,tree)
 	conditionIndices <- c(2,3,9,10)
-	comparisonSummary <- getSeparation(comparisonData[conditionIndices],metadata[conditionIndices])
+	comparisonSummary <- getSeparation(comparisonData,metadata[conditionIndices])
 
 }
