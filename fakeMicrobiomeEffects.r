@@ -140,6 +140,9 @@ summaryIndex <- summaryIndex+1
 fakeEffectSummary[[summaryIndex]] <- checkMetaData(data.jk.clr,data.jk,metadata.jk,"Sequencing_Depth_Adjustments/Jackknife_CLR","euclidean",tree)
 summaryIndex <- summaryIndex+1
 
+
+### NEED TO TREAT THIS LIKE REPLICATES -- BUGGY
+
 #dirichlet
 data.d <- dirichlet(data)
 #try proportional and CLR
@@ -161,6 +164,9 @@ print("sparsity test")
 data.sparse1 <- data[,which(apply(data.prop, 2, max) >= 0.01)]
 #get proportional data
 data.sparse1.prop <- prop(data.sparse1)
+
+#NEED TO TREAT THIS LIKE REPLICATES -- BUGGY
+
 #get clr dirichlet data
 data.sparse1.d <- dirichlet(prior(data.sparse1))[[1]]
 data.sparse1.clr <- clr(data.sparse1.d)
@@ -175,6 +181,9 @@ summaryIndex <- summaryIndex+1
 data.sparse01 <- data[apply(data.prop0, 1, max) >= 0.001,]
 #get proportional data
 data.sparse01.prop <- prop(data.sparse01)
+
+#NEED TO TREAT THIS LIKE REPLICATES -- BUGGY
+
 #get clr dirichlet data
 data.sparse01.d <- dirichlet(data.sparse01)[[1]]
 data.sparse01.clr <- clr(data.sparse01.d)
@@ -189,6 +198,9 @@ summaryIndex <- summaryIndex+1
 data.sparse001 <- data[apply(data.prop0, 1, max) >= 0.0001,]
 #get proportional data
 data.sparse001.prop <- prop(data.sparse001)
+
+#NEED TO TREAT THIS LIKE REPLICATES -- BUGGY
+
 #get clr dirichlet data
 data.sparse001.d <- dirichlet(data.sparse001)[[1]]
 data.sparse001.clr <- clr(data.sparse001.d)

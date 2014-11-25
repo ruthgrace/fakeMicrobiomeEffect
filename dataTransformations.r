@@ -4,8 +4,6 @@
 #stolen from Dr. Greg Gloor
 rdirichlet <- function (alpha)
 {
-	# test <- data.frame()
-	# rownames(test) <- c(1,2,3,"error")
 	n <- 128
   if(length(n) > 1){
   	n <- length(n)
@@ -22,11 +20,7 @@ rdirichlet <- function (alpha)
 
   x.median <- apply(x,2,median)
 
-  returnlist <- list()
-  returnlist[[1]] <- x.median
-  returnlist[[2]] <- x.median / sum(x.median)
-
-  return(returnlist)
+  return(x / sum(x))
 }
 
 #add prior of 0.5 to raw otu counts
