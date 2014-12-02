@@ -17,10 +17,10 @@ rdirichlet <- function (alpha)
   if(is.vector(alpha)) alpha <- t(alpha)
   l <- dim(alpha)[2]
   x <- matrix(rgamma(l * n, t(alpha)), ncol = l, byrow=TRUE)  # Gere le recycling
-
-  #x.median <- apply(x,2,median)
-
-  return(list(x))
+  x <- list(x)
+  #convert to proportions
+  x <- lapply(x,function(x) t(apply(x, 1, function(x){x/sum(x)})))
+  return(x)
 }
 
 #add prior of 0.5 to raw otu counts
