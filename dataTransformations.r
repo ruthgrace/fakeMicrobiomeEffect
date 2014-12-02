@@ -18,9 +18,9 @@ rdirichlet <- function (alpha)
   l <- dim(alpha)[2]
   x <- matrix(rgamma(l * n, t(alpha)), ncol = l, byrow=TRUE)  # Gere le recycling
 
-  x.median <- apply(x,2,median)
+  #x.median <- apply(x,2,median)
 
-  return(x / sum(x))
+  return(list(x))
 }
 
 #add prior of 0.5 to raw otu counts
@@ -32,14 +32,32 @@ prior <- function(otu) {
 
 #gets proportions from OTU counts
 prop <- function(otu) {
-	return(t(apply(otu, 1, function(x){x/sum(x)})))
+	if (is.list(otu)) {
+		for (i in 1:length(otu)) {
+			otu[[i]] <- t(apply(otu[[i]], 1, function(x){x/sum(x)}))
+		}
+		return(otu)
+	}
+	else {
+		return(t(apply(otu, 1, function(x){x/sum(x)})))
+	}
 }
 
 #gets clr values from proportional OTU counts, adds 0.5 prior
 clr <- function(otu) {
-	otu.prior <- prior(otu)
-	otu.prop <- prop(otu.prior)
-	return(t(apply(otu.prop,1,function(x){log2(x) - mean(log2(x))})))
+	if (is.list(otu)) {
+		for (i in 1:length(otu)) {
+			otu.temp.prior <- prior(otu[[i]])
+			otu.temp.prop <- prop(otu.temp.prior)
+			otu[[i]] <- t(apply(otu.temp.prop,1,function(x){log2(x) - mean(log2(x))}))
+		}
+		return(otu)
+	}
+	else {
+		otu.prior <- prior(otu)
+		otu.prop <- prop(otu.prior)
+		return(t(apply(otu.prop,1,function(x){log2(x) - mean(log2(x))})))
+	}
 }
 
 
@@ -97,5 +115,13 @@ rarefy <- function(otu,minReadCount,withReplacement) {
 
 #gets median of dirichlet distribution for each otu count per sample
 dirichlet <- function(otu) {
-	return(t(apply(otu,1, function(x){rdirichlet(x)})))
+	n <- 128
+	#assumes samples are in columns, otus are in rows
+	sampleReplicates <- apply(otu,1, function(x){rdirichlet(x)})
+	dataFrameReplicate <- list()
+	for (i in 1:n) {
+		listReplicate <- lapply(sampleReplicates,function(x) x[[1]][i,])
+		dataFrameReplicate[[i]] <- t(matrix(unlist(listReplicate),nrow=ncol(otu)))
+	}
+	return(dataFrameReplicate)
 }
