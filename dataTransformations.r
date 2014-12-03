@@ -1,5 +1,6 @@
 
-#dirichlet method - gets dirichlet distribution of reads per OTU, returns median
+#dirichlet method - gets dirichlet distribution of reads per OTU,
+# returns list of counts and proportions, which are lists of replicates
 # does 128 replicates (median converges at ~64 replicates)
 #stolen from Dr. Greg Gloor
 rdirichlet <- function (alpha)
@@ -16,11 +17,14 @@ rdirichlet <- function (alpha)
 
   if(is.vector(alpha)) alpha <- t(alpha)
   l <- dim(alpha)[2]
-  x <- matrix(rgamma(l * n, t(alpha)), ncol = l, byrow=TRUE)  # Gere le recycling
-  x <- list(x)
+  counts <- matrix(rgamma(l * n, t(alpha)), ncol = l, byrow=TRUE)  # Gere le recycling
+  counts <- list(counts)
   #convert to proportions
-  x <- lapply(x,function(x) t(apply(x, 1, function(x){x/sum(x)})))
-  return(x)
+  prop <- lapply(counts,function(x) t(apply(x, 1, function(x){x/sum(x)})))
+  returnList <- list()
+  returnList[[1]] <- counts
+  returnList[[2]] <- prop
+  return(returnList)
 }
 
 #add prior of 0.5 to raw otu counts
@@ -118,10 +122,22 @@ dirichlet <- function(otu) {
 	n <- 128
 	#assumes samples are in columns, otus are in rows
 	sampleReplicates <- apply(otu,1, function(x){rdirichlet(x)})
-	dataFrameReplicate <- list()
+	dataFrameReplicateCounts <- list()
+	dataFrameReplicateProp <- list()
 	for (i in 1:n) {
-		listReplicate <- lapply(sampleReplicates,function(x) x[[1]][i,])
-		dataFrameReplicate[[i]] <- t(matrix(unlist(listReplicate),nrow=ncol(otu)))
+		listReplicateCounts <- lapply(sampleReplicates,function(x) x[[1]][[1]][i,])
+		listReplicateProp <-lapply(sampleReplicates,function(x) x[[2]][[1]][i,])
+		dataFrameReplicateCounts[[i]] <- t(matrix(unlist(listReplicateCounts),nrow=ncol(otu)))
+		dataFrameReplicateProp[[i]] <- t(matrix(unlist(listReplicateProp),nrow=ncol(otu)))
+  		#restore proper column names
+  		colnames(dataFrameReplicateCounts[[i]]) <- colnames(otu)
+  		colnames(dataFrameReplicateProp[[i]]) <- colnames(otu)
+  		#restore proper row names
+  		rownames(dataFrameReplicateCounts[[i]]) <- rownames(otu)
+  		rownames(dataFrameReplicateProp[[i]]) <- rownames(otu)
 	}
-	return(dataFrameReplicate)
+	returnList <- list()
+	returnList[[1]] <- dataFrameReplicateCounts
+	returnList[[2]] <- dataFrameReplicateProp
+	return(returnList)
 }

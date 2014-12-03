@@ -140,7 +140,7 @@ data.d <- dirichlet(data)
 #try proportional and CLR
 data.d.counts <- data.d[[1]]
 data.d.prop <- data.d[[2]]
-data.d.clr <- clr(data.d)
+data.d.clr <- clr(data.d.counts)
 
 summary.d.prop <- checkMetaData(data.d.prop,data.d.counts,metadata,"Sequencing_Depth_Adjustments/Dirichlet_Proportions","unifrac",tree)
 

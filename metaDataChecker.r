@@ -123,23 +123,14 @@ checkMetaData <- function (otu, otucounts, metadata, folderName,analysis,tree)
 }
 
 checkMetaData.singleReplicate <- function(otu, otucounts, metadata, folderName,analysis,tree,replicates) {
-	nSamples <- length(rownames(metadata))
-
 	#add metadata for made up random condition grouping
+	nSamples <- length(rownames(metadata))
 	imaginaryGrouping <- as.factor(c(rep("1",floor(nSamples/2)),rep("2",(nSamples - floor(nSamples/2)))))
 	#shuffle
 	imaginaryGrouping <- sample(imaginaryGrouping)
 	metadata$imaginaryGrouping <- imaginaryGrouping
 
-	#add metadata for fake "read count category"
-	readCountGroups <- as.factor(c(rep("low",floor(nSamples/2)),rep("high",(nSamples - floor(nSamples/2)))))
-	readCounts <- apply(otucounts,1,sum)
-	readCountOrder <- order(readCounts)
-	#assign the half of samples with lowest counts to "low" read count condition
-	readCountGroups[readCountOrder[c(1:floor(nSamples/2))]] <- levels(readCountGroups)[2]
-	#assign the half of samples with highest counts to "high" read count condition
-	readCountGroups[readCountOrder[c((floor(nSamples/2)+1):nSamples)]] <- levels(readCountGroups)[1]
-	metadata$readCountGroups <- readCountGroups
+	makeReadCountMetadata(otucounts,metadata,replicates)
 
 	#make output folder if it doesn't exist already
 	mainDir <- getwd()
@@ -157,3 +148,34 @@ checkMetaData.singleReplicate <- function(otu, otucounts, metadata, folderName,a
 
 	return(comparisonSummary)
 }
+
+makeReadCountMetadata <- function(counts, metadata, replicates) {
+	
+	nSamples <- length(rownames(metadata))
+	if (replicates) {
+		# get average otucounts
+		nItems <- length(counts[[1]])
+		otucounts <- counts[[1]]
+		for (i in 1:nItems) {
+			otucounts[i] <- mean(unlist(lapply(counts,function(x) x[i])))
+		}
+	}
+	else {
+		otucounts <- counts
+	}
+
+	#add metadata for fake "read count category"
+	readCountGroups <- as.factor(c(rep("low",floor(nSamples/2)),rep("high",(nSamples - floor(nSamples/2)))))
+	readCounts <- apply(otucounts,1,sum)
+	readCountOrder <- order(readCounts)
+	#assign the half of samples with lowest counts to "low" read count condition
+	readCountGroups[readCountOrder[c(1:floor(nSamples/2))]] <- levels(readCountGroups)[2]
+	#assign the half of samples with highest counts to "high" read count condition
+	readCountGroups[readCountOrder[c((floor(nSamples/2)+1):nSamples)]] <- levels(readCountGroups)[1]
+	metadata$readCountGroups <- readCountGroups
+	return(metadata)
+}
+
+
+
+
