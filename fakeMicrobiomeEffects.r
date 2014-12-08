@@ -10,6 +10,7 @@
 # data is from http://www.hmpdacc.org/HMQCP/
 #
 ###############################################################
+options(error=recover)
 
 library(plyr)
 library(phangorn)

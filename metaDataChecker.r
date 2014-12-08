@@ -26,7 +26,7 @@ pairwiseConditionComparator <- function(otu,otucounts,groups,folderName,analysis
 		#make distance matrix for each element in list (each element in list is one dirichlet replicate)
 		myDistMat <- list()
 		for(i in 1:length(otu)) {
-			myDistMat[[i]] <- getDistMat(otu[[i]],otucounts[[i]],analysis,tree)
+			myDistMat[[i]] <- getDistMat(otu[[i]],otucounts,analysis,tree)
 		}
 		#get average distance matrix
 		distMat <- myDistMat[[1]]
@@ -75,7 +75,7 @@ pairwiseConditionComparator <- function(otu,otucounts,groups,folderName,analysis
 
 getDistMat <- function(otu,otucounts,analysis,tree) {
 	if (analysis == "unifrac") {
-		distMat <- GUniFrac(otucounts,tree,c(1))$unifracs[,,"d_1"]
+		distMat <- GUniFrac(otucounts,tree,c(1))$unifracs[,,1]
 	}
 	else {
 		if (analysis != "euclidean") {
@@ -112,22 +112,8 @@ getPcoaSeparation <- function(pcoa,groups,component) {
 	return(distance)
 }
 
-checkMetaData <- function (otu, otucounts, metadata, folderName,analysis,tree)
-{
-
-	#check dimensionality -- separate workflow if there are dirichlet replicates
-	if (is.list(otu)) {
-		#NOT DONE YET
-		return(checkMetaData.singleReplicate(otu, otucounts, metadata, folderName,analysis,tree,replicates=TRUE))		
-	}
-	else {
-		return(checkMetaData.singleReplicate(otu, otucounts, metadata, folderName,analysis,tree,replicates=FALSE))
-	}
-	
-
-}
-
-checkMetaData.singleReplicate <- function(otu, otucounts, metadata, folderName,analysis,tree,replicates) {
+checkMetaData <- function(otu, otucounts, metadata, folderName,analysis,tree) {
+	replicates <- is.list(otu)
 	#add metadata for made up random condition grouping
 	nSamples <- length(rownames(metadata))
 	imaginaryGrouping <- as.factor(c(rep("1",floor(nSamples/2)),rep("2",(nSamples - floor(nSamples/2)))))
