@@ -33,9 +33,11 @@ pairwiseConditionComparator <- function(otu,otucounts,groups,folderName,analysis
 		for(i in 1:length(distMat)) {
 			distMat[i] <- mean(unlist(lapply(myDistMat,function(x) x[i])))
 		}
+		sampleNames <- rowname(otu[[1]])
 	}
 	else {
 		distMat <- getDistMat(otu,otucounts,analysis,tree)
+		sampleNames <- rownames(otu)
 	}
 
 	
@@ -56,11 +58,14 @@ pairwiseConditionComparator <- function(otu,otucounts,groups,folderName,analysis
 				group1indices <- which(groups==conditions[i])
 				group2indices <- which(groups==conditions[j])
 				data$groups[[index]] <- groups[c(group1indices,group2indices)]
-				data$samples[[index]] <- rownames(otu)[c(group1indices,group2indices)]
+				data$samples[[index]] <- sampleNames[c(group1indices,group2indices)]
 				data$pcoa[[index]] <- pcoa(data$distMat[which(rownames(data$distMat) %in% data$samples[[index]]),which(colnames(data$distMat) %in% data$samples[[index]])])
-				data$wilcoxinRankSum[[index]] <- t(apply(t(otu[c(group1indices,group2indices)]),1,function(x) { as.numeric(wilcox.test(x[1:length(group1indices)], x[length(group1indices):length(c(group1indices,group2indices))])[3]) } ))
-				data$wilcoxinRankSumBH[[index]] <- p.adjust(data$wilcoxinRankSum[[index]], method="BH")
-				index <- index + 1
+				if (!replicates) {
+					data$wilcoxinRankSum[[index]] <- t(apply(t(otu[c(group1indices,group2indices)]),1,function(x) { as.numeric(wilcox.test(x[1:length(group1indices)], x[length(group1indices):length(c(group1indices,group2indices))])[3]) } ))
+					data$wilcoxinRankSumBH[[index]] <- p.adjust(data$wilcoxinRankSum[[index]], method="BH")
+					index <- index + 1
+				}
+				
 			}
 		}
 		
