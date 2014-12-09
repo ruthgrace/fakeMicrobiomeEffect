@@ -26,14 +26,14 @@ pairwiseConditionComparator <- function(otu,otucounts,groups,folderName,analysis
 		#make distance matrix for each element in list (each element in list is one dirichlet replicate)
 		myDistMat <- list()
 		for(i in 1:length(otu)) {
-			myDistMat[[i]] <- getDistMat(otu[[i]],otucounts,analysis,tree)
+			myDistMat[[i]] <- getDistMat(otu[[i]],otucounts[[i]],analysis,tree)
 		}
 		#get average distance matrix
 		distMat <- myDistMat[[1]]
 		for(i in 1:length(distMat)) {
 			distMat[i] <- mean(unlist(lapply(myDistMat,function(x) x[i])))
 		}
-		sampleNames <- rowname(otu[[1]])
+		sampleNames <- rownames(otu[[1]])
 	}
 	else {
 		distMat <- getDistMat(otu,otucounts,analysis,tree)
