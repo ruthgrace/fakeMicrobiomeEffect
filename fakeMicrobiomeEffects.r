@@ -159,44 +159,52 @@ data.sparse1.prop <- prop(data.sparse1)
 #NEED TO TREAT THIS LIKE REPLICATES -- BUGGY
 
 #get clr dirichlet data
-data.sparse1.d <- dirichlet(prior(data.sparse1))[[1]]
-data.sparse1.clr <- clr(data.sparse1.d)
+data.sparse1.d <- dirichlet(prior(data.sparse1))
+data.sparse1.d.prop <- data.sparse1.d[[1]]
+data.sparse1.d.counts <- data.sparse1.d[[2]]
+data.sparse1.clr <- clr(data.sparse1.d.prop)
 
 summary.sparse1.prop <- checkMetaData(data.sparse1.prop,data.sparse1,metadata,"Sparsity/Less_rare_than_1_percent_proportions","unifrac",tree)
 
-summary.sparse1.clr <- checkMetaData(data.sparse1.clr,data.sparse1,metadata,"Sparsity/Less_rare_than_1_percent_clr","euclidean",tree)
+summary.sparse1.clr <- checkMetaData(data.sparse1.clr,data.sparse1.d.counts,metadata,"Sparsity/Less_rare_than_1_percent_clr","euclidean",tree)
 
 
 #remove OTUs that are rarer than 0.1% (1/1,000) in any every sample
-data.sparse01 <- data[apply(data.prop0, 1, max) >= 0.001,]
+data.sparse01 <- data[apply(data.prop, 1, max) >= 0.001,]
 #get proportional data
 data.sparse01.prop <- prop(data.sparse01)
 
 #NEED TO TREAT THIS LIKE REPLICATES -- BUGGY
 
 #get clr dirichlet data
-data.sparse01.d <- dirichlet(data.sparse01)[[1]]
-data.sparse01.clr <- clr(data.sparse01.d)
+#get clr dirichlet data
+data.sparse01.d <- dirichlet(prior(data.sparse01))
+data.sparse01.d.prop <- data.sparse01.d[[1]]
+data.sparse01.d.counts <- data.sparse01.d[[2]]
+data.sparse01.clr <- clr(data.sparse01.d.prop)
 
 summary.sparse01.prop <- checkMetaData(data.sparse01.prop,data.sparse01,metadata,"Sparsity/Less_rare_than_01_percent_proportions","unifrac",tree)
 
-summary.sparse01.clr <- checkMetaData(data.sparse01.clr,data.sparse01,metadata,"Sparsity/Less_rare_than_01_percent_clr","euclidean",tree)
+summary.sparse01.clr <- checkMetaData(data.sparse01.clr,data.sparse01.d.counts,metadata,"Sparsity/Less_rare_than_01_percent_clr","euclidean",tree)
 
 
 #remove OTUs that are rarer than 0.001% (1/10,000) in any every sample
-data.sparse001 <- data[apply(data.prop0, 1, max) >= 0.0001,]
+data.sparse001 <- data[apply(data.prop, 1, max) >= 0.0001,]
 #get proportional data
 data.sparse001.prop <- prop(data.sparse001)
 
 #NEED TO TREAT THIS LIKE REPLICATES -- BUGGY
 
 #get clr dirichlet data
-data.sparse001.d <- dirichlet(data.sparse001)[[1]]
-data.sparse001.clr <- clr(data.sparse001.d)
+#get clr dirichlet data
+data.sparse001.d <- dirichlet(prior(data.sparse001))
+data.sparse001.d.prop <- data.sparse001.d[[1]]
+data.sparse001.d.counts <- data.sparse001.d[[2]]
+data.sparse001.clr <- clr(data.sparse001.d.prop)
 
 summary.sparse001.prop <- checkMetaData(data.sparse001.prop,data.sparse001,metadata,"Sparsity/Less_rare_than_001_percent_proportions","unifrac",tree)
 
-summary.sparse001.clr <- checkMetaData(data.sparse001.clr,data.sparse001,metadata,"Sparsity/Less_rare_than_001_percent_clr","euclidean",tree)
+summary.sparse001.clr <- checkMetaData(data.sparse001.clr,data.sparse001.d.counts,metadata,"Sparsity/Less_rare_than_001_percent_clr","euclidean",tree)
 
 
 fakeEffectSummary <- list()

@@ -121,7 +121,7 @@ checkMetaData <- function(otu, otucounts, metadata, folderName,analysis,tree) {
 	imaginaryGrouping <- sample(imaginaryGrouping)
 	metadata$imaginaryGrouping <- imaginaryGrouping
 
-	makeReadCountMetadata(otucounts,metadata,replicates)
+	metadata <- makeReadCountMetadata(otucounts,metadata,replicates)
 
 	#make output folder if it doesn't exist already
 	mainDir <- getwd()
