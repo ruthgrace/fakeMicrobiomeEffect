@@ -16,6 +16,60 @@ library(ape)
 library(phangorn)
 
 
+
+
+
+####################### INTITIALIZATION SCRIPT #########################
+
+source("dataTransformations.r")
+source("metaDataChecker.r")
+
+#read metadata
+metadata <- read.table("50_random_hmp_gut_samples_metadata.txt", header=TRUE, sep="\t", row.names=1)
+#read count data
+data <- t(read.table("50_random_hmp_gut_samples_otu.txt", header=TRUE, sep="\t", row.names=1,check.names=FALSE))
+#read tree
+tree <- read.tree("rep_set_v35_subtree.tre")
+if (!is.rooted(tree)) {
+	tree <- midpoint(tree)
+}
+
+
+darkorchid <- col2rgb("darkorchid4")
+transparentdarkorchid <- rgb(darkorchid[1]/255,darkorchid[2]/255,darkorchid[3]/255,0.3)
+
+aquamarine <- col2rgb("chartreuse4")
+transparentaquamarine <- rgb(aquamarine[1]/255,aquamarine[2]/255,aquamarine[3]/255,0.3)
+
+palette(c(transparentdarkorchid,transparentaquamarine,"blue","black"))
+
+####################### METHODS #########################
+
+#plot differences
+plotDifferences <- function(summary,fileName,dataTitle) {
+	pdf(fileName)
+	for (i in 1:length(summary)) {
+		nGroups <- length(summary[[i]]$groups)
+		for (group in 1:nGroups) {
+			#find effect size
+			effectSize <- abs(mean(summary[[i]]$pcoa[[group]]$vectors[which(summary[[i]]$groups[[group]]==(unique(summary[[i]]$groups[[group]])[1])),1]) - mean(summary[[i]]$pcoa[[group]]$vectors[which(summary[[i]]$groups[[group]]==(unique(summary[[i]]$groups[[group]])[2])),1]))/sd(summary[[i]]$pcoa[[group]]$vectors[,1])
+			#find variance explained by the first 2 components
+			totalVar <- sum(apply(summary[[i]]$pcoa[[group]]$vectors,2,sd))
+			var1 <- sd(summary[[i]]$pcoa[[group]]$vectors[,1])/totalVar
+			var2 <- sd(summary[[i]]$pcoa[[group]]$vectors[,2])/totalVar
+			#plot pcoa
+			plot(summary[[i]]$pcoa[[group]]$vectors[,1],summary[[i]]$pcoa[[group]]$vectors[,2], type="p",col=as.factor(summary[[i]]$groups[[group]]),main=paste(dataTitle,"Principal Coordinates Analysis\neffect size of separation of groups",unique(summary[[i]]$groups[[group]])[1],"&",unique(summary[[i]]$groups[[group]])[2],":",round(effectSize,digits=3)),xlab=paste("First Component", round(var1,digits=3),"variance explained"),ylab=paste("Second Component", round(var2,digits=3),"variance explained"),pch=19)
+		}
+	}
+	dev.off()
+}
+
+plotAll <- function(summaryList,fileNameList,dataTitleList) {
+	for (i in 1:length(summaryList)) {
+		plotDifferences(summaryList[[i]],fileNameList[[i]],dataTitleList[[i]])
+	}
+}
+
 pairwiseConditionComparator <- function(otu,otucounts,groups,folderName,analysis,tree,replicates) {
 	data <- list()
 	
@@ -108,11 +162,11 @@ getPcoaSeparation <- function(pcoa,groups,component) {
 	#conditions[1] vs conditions[2] -- expect pairwise condition comparison
 	group1indices <- which(groups==conditions[1])
 	group2indices <- which(groups==conditions[2])
-	distance <- abs(mean(pcoa$vectors[group1indices,component]) - mean(pcoa$vectors[group2indices,component]))
+	distance <- abs(mean(pcoa$vectors[group1indices,component]) - mean(pcoa$vectors[group2indices,component]))/(sd(pcoa$vectors[,component]))
 	return(distance)
 }
 
-checkMetaData <- function(otu, otucounts, metadata, folderName,analysis,tree) {
+checkMetaData <- function(otu, otucounts, metadata, folderName,analysis,tree,fileName,dataTitle) {
 	replicates <- is.list(otu)
 	#add metadata for made up random condition grouping
 	nSamples <- length(rownames(metadata))
@@ -136,6 +190,8 @@ checkMetaData <- function(otu, otucounts, metadata, folderName,analysis,tree) {
 	comparisonData$imaginaryGrouping <- pairwiseConditionComparator(otu,otucounts,metadata$imaginaryGrouping,folderName,analysis,tree,replicates)
 	conditionIndices <- c(2,3,9,10)
 	comparisonSummary <- getSeparation(comparisonData,metadata[conditionIndices])
+
+	plotDifference(comparisonSummary,fileName,dataTitle)
 
 	return(comparisonSummary)
 }
