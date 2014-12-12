@@ -16,37 +16,8 @@ library(ape)
 library(phangorn)
 
 
-
-
-
-####################### INTITIALIZATION SCRIPT #########################
-
-source("dataTransformations.r")
-source("metaDataChecker.r")
-
-#read metadata
-metadata <- read.table("50_random_hmp_gut_samples_metadata.txt", header=TRUE, sep="\t", row.names=1)
-#read count data
-data <- t(read.table("50_random_hmp_gut_samples_otu.txt", header=TRUE, sep="\t", row.names=1,check.names=FALSE))
-#read tree
-tree <- read.tree("rep_set_v35_subtree.tre")
-if (!is.rooted(tree)) {
-	tree <- midpoint(tree)
-}
-
-
-darkorchid <- col2rgb("darkorchid4")
-transparentdarkorchid <- rgb(darkorchid[1]/255,darkorchid[2]/255,darkorchid[3]/255,0.3)
-
-aquamarine <- col2rgb("chartreuse4")
-transparentaquamarine <- rgb(aquamarine[1]/255,aquamarine[2]/255,aquamarine[3]/255,0.3)
-
-palette(c(transparentdarkorchid,transparentaquamarine,"blue","black"))
-
-####################### METHODS #########################
-
 #plot differences
-plotDifferences <- function(summary,fileName,dataTitle) {
+plotDifference <- function(summary,fileName,dataTitle) {
 	pdf(fileName)
 	for (i in 1:length(summary)) {
 		nGroups <- length(summary[[i]]$groups)
@@ -66,7 +37,7 @@ plotDifferences <- function(summary,fileName,dataTitle) {
 
 plotAll <- function(summaryList,fileNameList,dataTitleList) {
 	for (i in 1:length(summaryList)) {
-		plotDifferences(summaryList[[i]],fileNameList[[i]],dataTitleList[[i]])
+		plotDifference(summaryList[[i]],fileNameList[[i]],dataTitleList[[i]])
 	}
 }
 
@@ -191,7 +162,7 @@ checkMetaData <- function(otu, otucounts, metadata, folderName,analysis,tree,fil
 	conditionIndices <- c(2,3,9,10)
 	comparisonSummary <- getSeparation(comparisonData,metadata[conditionIndices])
 
-	plotDifference(comparisonSummary,fileName,dataTitle)
+	plotDifference(comparisonSummary,file.path(mainDir, folderName,fileName),dataTitle)
 
 	return(comparisonSummary)
 }

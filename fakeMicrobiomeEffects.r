@@ -16,6 +16,31 @@ library(plyr)
 library(phangorn)
 
 
+####################### INTITIALIZATION SCRIPT #########################
+
+source("dataTransformations.r")
+source("metaDataChecker.r")
+
+#read metadata
+metadata <- read.table("50_random_hmp_gut_samples_metadata.txt", header=TRUE, sep="\t", row.names=1)
+#read count data
+data <- t(read.table("50_random_hmp_gut_samples_otu.txt", header=TRUE, sep="\t", row.names=1,check.names=FALSE))
+#read tree
+tree <- read.tree("rep_set_v35_subtree.tre")
+if (!is.rooted(tree)) {
+	tree <- midpoint(tree)
+}
+
+
+darkorchid <- col2rgb("darkorchid4")
+transparentdarkorchid <- rgb(darkorchid[1]/255,darkorchid[2]/255,darkorchid[3]/255,0.3)
+
+aquamarine <- col2rgb("chartreuse4")
+transparentaquamarine <- rgb(aquamarine[1]/255,aquamarine[2]/255,aquamarine[3]/255,0.3)
+
+palette(c(transparentdarkorchid,transparentaquamarine,"blue","black"))
+
+
 #### select 50 samples from full data set
 
 # #read OTU count data
