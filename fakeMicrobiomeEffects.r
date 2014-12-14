@@ -160,6 +160,9 @@ summary.d.clr <- checkMetaData(data.d.clr,data.d.counts,metadata,"Sequencing_Dep
 ################# SPARSITY TEST ##################
 print("sparsity test")
 
+mainDir <- getwd()
+dir.create(file.path(mainDir, "Sparsity"))
+
 #remove OTUs that are rarer than 1% (1/100) in any every sample
 data.sparse1 <- data[,which(apply(data.prop, 2, max) >= 0.01)]
 #get proportional data
