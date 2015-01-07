@@ -29,7 +29,7 @@ plotDifference <- function(summary,fileName,dataTitle) {
 			var1 <- sd(summary[[i]]$pcoa[[group]]$vectors[,1])/totalVar
 			var2 <- sd(summary[[i]]$pcoa[[group]]$vectors[,2])/totalVar
 			#plot pcoa
-			plot(summary[[i]]$pcoa[[group]]$vectors[,1],summary[[i]]$pcoa[[group]]$vectors[,2], type="p",col=as.factor(summary[[i]]$groups[[group]]),main=paste(dataTitle,"Principal Coordinates Analysis\neffect size of separation of groups",unique(summary[[i]]$groups[[group]])[1],"&",unique(summary[[i]]$groups[[group]])[2],":",round(effectSize,digits=3)),xlab=paste("First Component", round(var1,digits=3),"variance explained"),ylab=paste("Second Component", round(var2,digits=3),"variance explained"),pch=19)
+			plot(summary[[i]]$pcoa[[group]]$vectors[,1],summary[[i]]$pcoa[[group]]$vectors[,2], type="p",col=as.factor(summary[[i]]$groups[[group]]),main=paste(dataTitle, names(summary)[i],"Principal Coordinates Analysis\neffect size of separation of groups",unique(summary[[i]]$groups[[group]])[1],"&",unique(summary[[i]]$groups[[group]])[2],":",round(effectSize,digits=3)),xlab=paste("First Component", round(var1,digits=3),"variance explained"),ylab=paste("Second Component", round(var2,digits=3),"variance explained"),pch=19)
 		}
 	}
 	dev.off()
