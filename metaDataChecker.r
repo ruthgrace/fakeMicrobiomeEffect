@@ -55,13 +55,11 @@ plotAllScreePlots <- function(summaryList,fileNameList,dataTitleList) {
 plotPcoaWithSeparationStats <- function(summaryList,fileNameList,dataTitleList) {
 	
 	for (i in 1:length(summaryList)) {
-		pdf(paste(fileNameList[[i]],"pcoa",sep="_"))
+		pdf(paste("pcoa",fileNameList[[i]],sep="_"))
 		for (j in 1:length(summaryList[[i]])) {
 			current <- summaryList[[i]][[j]]
 			for (groupIndex in length(current$pcoa)) {
 				k <- current$pcoa[[groupIndex]]
-				#find effect size
-				effectSize <- abs(mean(k$vectors[which(current$groups[[groupIndex]]==(unique(current$groups[[groupIndex]])[1])),1]) - mean(k$vectors[which(current$groups[[groupIndex]]==(unique(current$groups[[groupIndex]])[2])),1]))/sd(k$vectors[,1])
 				#find variance explained by the first 2 components
 				totalVar <- sum(apply(k$vectors,2,sd))
 				var1 <- sd(k$vectors[,1])/totalVar
@@ -72,7 +70,7 @@ plotPcoaWithSeparationStats <- function(summaryList,fileNameList,dataTitleList) 
 				group2Mean <- mean(k$vectors[which(current$groups[[groupIndex]]==(unique(current$groups[[groupIndex]])[2])),1])
 				separation <- group1Mean - group2Mean
 				#get standard dev
-				standardDev <- sd(k$vectors[,1]
+				standardDev <- sd(k$vectors[,1])
 				#get effect size
 				effectSize <- abs(separation/standardDev)
 				#plot
@@ -82,13 +80,14 @@ plotPcoaWithSeparationStats <- function(summaryList,fileNameList,dataTitleList) 
 						"Principal Coordinates Analysis\neffect size of separation of groups",
 						unique(current$groups[[groupIndex]])[1],"&",unique(current$groups[[groupIndex]])[2],
 						":",
-						round(effectSize,digits=3)),
+						round(effectSize,digits=3),
+						"\nmean separation",round(abs(separation),digits=3),"stdev",round(standardDev,digits=3)),
 					xlab=paste("First Component",
 						round(var1,digits=3),
 						"variance explained"),
 					ylab=paste("Second Component",
 						round(var2,digits=3),
-						"variance explained\n","mean separation",round(separation,digits=3),"stdev",round(standardDev,digits=3)),
+						"variance explained"),
 					pch=19)
 
 			}
