@@ -280,4 +280,6 @@ fakeEffectSummary[[14]] <- summary.sparse001.clr
 
 # plotAll(fakeEffectSummary,fileNameList,dataTitleList)
 
+plotAllScreePlots(fakeEffectSummary,fileNameList,dataTitleList)
+
 save(fakeEffectSummary,file="summary.dat") # load with load(file="summary.dat")

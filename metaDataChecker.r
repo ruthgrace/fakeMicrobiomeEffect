@@ -34,6 +34,70 @@ plotDifference <- function(summary,fileName,dataTitle) {
 	}
 	dev.off()
 }
+#run with plotAllScreePlots(fakeEffectSummary,fileNameList,dataTitleList)
+plotAllScreePlots <- function(summaryList,fileNameList,dataTitleList) {
+	
+	for (i in 1:length(summaryList)) {
+		pdf(fileNameList[[i]])
+		for (j in 1:length(summaryList[[i]])) {
+			current <- summaryList[[i]][[j]]
+			for (k in current$pcoa) {
+				varianceExplained <- apply(k$vectors,2,sd)
+				proportionVarianceExplained <- varianceExplained/sum(varianceExplained)
+				print(barplot(proportionVarianceExplained[1:10],main=paste(dataTitleList[[i]], names(summaryList[[i]])[j],"Scree plot")))
+			}
+		}
+		dev.off()
+	}
+}
+
+#run with plotPcoaWithSeparationStats(fakeEffectSummary,fileNameList,dataTitleList)
+plotPcoaWithSeparationStats <- function(summaryList,fileNameList,dataTitleList) {
+	
+	for (i in 1:length(summaryList)) {
+		pdf(paste(fileNameList[[i]],"pcoa",sep="_"))
+		for (j in 1:length(summaryList[[i]])) {
+			current <- summaryList[[i]][[j]]
+			for (groupIndex in length(current$pcoa)) {
+				k <- current$pcoa[[groupIndex]]
+				#find effect size
+				effectSize <- abs(mean(k$vectors[which(current$groups[[groupIndex]]==(unique(current$groups[[groupIndex]])[1])),1]) - mean(k$vectors[which(current$groups[[groupIndex]]==(unique(current$groups[[groupIndex]])[2])),1]))/sd(k$vectors[,1])
+				#find variance explained by the first 2 components
+				totalVar <- sum(apply(k$vectors,2,sd))
+				var1 <- sd(k$vectors[,1])/totalVar
+				var2 <- sd(k$vectors[,2])/totalVar
+
+				#get mean separation
+				group1Mean <- mean(k$vectors[which(current$groups[[groupIndex]]==(unique(current$groups[[groupIndex]])[1])),1])
+				group2Mean <- mean(k$vectors[which(current$groups[[groupIndex]]==(unique(current$groups[[groupIndex]])[2])),1])
+				separation <- group1Mean - group2Mean
+				#get standard dev
+				standardDev <- sd(k$vectors[,1]
+				#get effect size
+				effectSize <- abs(separation/standardDev)
+				#plot
+				plot(k$vectors[,1],k$vectors[,2], type="p",col=as.factor(current$groups[[groupIndex]]),
+					main=paste(dataTitleList[[i]],
+						names(summaryList[[i]])[j],
+						"Principal Coordinates Analysis\neffect size of separation of groups",
+						unique(current$groups[[groupIndex]])[1],"&",unique(current$groups[[groupIndex]])[2],
+						":",
+						round(effectSize,digits=3)),
+					xlab=paste("First Component",
+						round(var1,digits=3),
+						"variance explained"),
+					ylab=paste("Second Component",
+						round(var2,digits=3),
+						"variance explained\n","mean separation",round(separation,digits=3),"stdev",round(standardDev,digits=3)),
+					pch=19)
+
+			}
+		}
+		dev.off()
+	}
+}
+
+
 
 plotAll <- function(summaryList,fileNameList,dataTitleList) {
 	for (i in 1:length(summaryList)) {
